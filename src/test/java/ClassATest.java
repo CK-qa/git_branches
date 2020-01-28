@@ -1,0 +1,5 @@
+class ClassATest {
+
+    void foo() {
+    }
+}
