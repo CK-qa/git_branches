@@ -2,7 +2,12 @@ public class ClassA {
 
     public void foo() {
 
-        //test
+        //changeit
+        bar();
 
+    }
+
+    private void bar() {
+        //pewpew
     }
 }
