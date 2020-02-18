@@ -6,5 +6,7 @@ public class ClassB {
     //cjvjhdjfhdjf
     public static void main(String[] args) {
 
+        //do the change
+
     }
 }
