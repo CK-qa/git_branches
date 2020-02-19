@@ -10,6 +10,7 @@ public class ClassB {
         //another change
 
         //one more line
+        //
 
     }
 }
