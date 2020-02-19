@@ -9,5 +9,7 @@ public class ClassB {
         //do the change
         //another change
 
+        //one more
+
     }
 }
