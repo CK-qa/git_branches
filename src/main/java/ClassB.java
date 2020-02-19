@@ -1,4 +1,4 @@
 public class ClassB {
 
-    //зуцзуц
+    //test
 }
