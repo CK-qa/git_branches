@@ -9,6 +9,7 @@ public class ClassB {
     private static void foo() {
 
         //change
+        //change2
 
     }
 }
