@@ -1,452 +1,190 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
-public class Class_Uno
-{
+/*************************************************************************
+ *  Compilation:  javac Class_Uno.java
+ *  Execution:    java Class_Uno filename.txt
+ *  Dependencies: Bag.java Edge.java In.java StdOut.java
+ *  Data files:   http://algs4.cs.princeton.edu/43mst/tinyEWG.txt
+ *
+ *  An edge-weighted undirected graph, implemented using adjacency lists.
+ *  Parallel edges and self-loops are permitted.
+ *
+ *  % java Class_Uno tinyEWG.txt
+ *  8 16
+ *  0: 6-0 0.58000  0-2 0.26000  0-4 0.38000  0-7 0.16000
+ *  1: 1-3 0.29000  1-2 0.36000  1-7 0.19000  1-5 0.32000
+ *  2: 6-2 0.40000  2-7 0.34000  1-2 0.36000  0-2 0.26000  2-3 0.17000
+ *  3: 3-6 0.52000  1-3 0.29000  2-3 0.17000
+ *  4: 6-4 0.93000  0-4 0.38000  4-7 0.37000  4-5 0.35000
+ *  5: 1-5 0.32000  5-7 0.28000  4-5 0.35000
+ *  6: 6-4 0.93000  6-0 0.58000  3-6 0.52000  6-2 0.40000
+ *  7: 2-7 0.34000  1-7 0.19000  0-7 0.16000  5-7 0.28000  4-7 0.37000
+ *
+ *************************************************************************/
+
+import com.sun.javafx.geom.Edge;
+
+/**
+ * The <tt>Class_Uno</tt> class represents an undirected graph of vertices
+ * named 0 through V-1, where each edge has a real-valued weight.
+ * It supports the following operations: add an edge to the graph,
+ * in the graph, iterate over all of the neighbors incident to a vertex.
+ * Parallel edges and self-loops are permitted.
+ * <p>
+ * For additional documentation, see <a href="http://algs4.cs.princeton.edu/43mst">Section 4.3</a> of
+ * <i>Algorithms, 4th Edition</i> by Robert Sedgewick and Kevin Wayne.
+ */
+
+
+public class Class_Uno {
+    private final int V;
+    private int E;
+    private Bag<Edge>[] adj;
 
     /**
-     * Main jump
-     *
-     * @param args
+     * Create an empty edge-weighted graph with V vertices.
      */
-    public static void main(String[] args)
-    {
-        System.out.println("begin");
-
-        // conditionas are possible values for attributes
-        Condition gr_20 = new Condition(">20");
-        Condition gr_50 = new Condition(">50");
-        Condition gr_80 = new Condition(">80");
-        Condition yes = new Condition("yes");
-        Condition no = new Condition("no");
-        Condition scattered = new Condition("scattered");
-        Condition overcast = new Condition("overcast");
-
-        // these attributes are overall, all possible values
-        Attribute[] real_attributes = new Attribute[3];
-        real_attributes[0] = new Attribute("%", gr_20, gr_50, gr_80);
-        real_attributes[1] = new Attribute("rained", yes, no);
-        real_attributes[2] = new Attribute("cloudy", scattered, no, overcast);
-
-        // these attributes will be linked to examples
-        Attribute[] example_attributes = new Attribute[6];
-        example_attributes[0] = new Attribute("%", gr_20, gr_50, gr_80);
-        example_attributes[1] = new Attribute("%", gr_20, gr_50, gr_80);
-        example_attributes[2] = new Attribute("%", gr_20, gr_50, gr_80);
-        example_attributes[3] = new Attribute("rained", yes, no);
-        example_attributes[4] = new Attribute("cloudy", scattered, no, overcast);
-        example_attributes[5] = new Attribute("rain_today", yes, no);
-
-        // examples contain attributes and a value
-        // here we will build a decision tree based on 'weather'
-        Example[] examples = new Example[10];
-        // these are in the order of the example attributes above
-        examples[0] = new Example(example_attributes, gr_20, gr_50, no, no, scattered, yes);
-        examples[1] = new Example(example_attributes, gr_20, no, no, no, no, no);
-        examples[2] = new Example(example_attributes, no, no, no, yes, no, no);
-        examples[3] = new Example(example_attributes, gr_20, gr_50, gr_80, no, overcast, yes);
-        examples[4] = new Example(example_attributes, gr_20, gr_50, gr_80, yes, no, yes);
-        examples[5] = new Example(example_attributes, gr_20, gr_50, gr_80, yes, overcast, yes);
-        examples[6] = new Example(example_attributes, gr_20, no, no, yes, no, no);
-        examples[7] = new Example(example_attributes, no, no, no, no, no, no);
-        examples[8] = new Example(example_attributes, gr_20, no, no, no, overcast, yes);
-        examples[9] = new Example(example_attributes, gr_20, no, no, no, scattered, yes);
-
-        Attribute desired_attribute = example_attributes[example_attributes.length - 1]; // desired attribute is the last
-
-        Node<?> tree = learnDecision(examples, real_attributes, yes, desired_attribute);
-
-        System.out.println(tree.toString());
+    public Class_Uno(int V) {
+        if (V < 0) throw new RuntimeException("Number of vertices must be nonnegative");
+        this.V = V;
+        this.E = 0;
+        adj = (Bag<Edge>[]) new Bag[V];
+        for (int v = 0; v < V; v++) {
+            adj[v] = new Bag<Edge>();
+        }
     }
 
     /**
-     * Main learn loop that builds a decision tree
-     *
-     * @param examples list of input samples built from attributes and conditions
-     * @param attributes list of all attributes to iterate over
-     * @param default_label list of default condition for desired attribute to apply
-     * @param desired_attribute the attribute to test for
-     * @return
+     * Create a random edge-weighted graph with V vertices and E edges.
+     * The expected running time is proportional to V + E.
      */
-    public static Node<?> learnDecision(Example[] examples, Attribute[] attributes, Condition default_label, Attribute desired_attribute)
-    {
-        // first base case
-        if (examples.length == 0)
-        {
-            System.out.println("leaf 1");
-            return new Node<Condition>(default_label, "first leaf ");
+    public Class_Uno(int V, int E) {
+        this(V);
+        if (E < 0) throw new RuntimeException("Number of edges must be nonnegative");
+        for (int i = 0; i < E; i++) {
+            int v = (int) (Math.random() * V);
+            int w = (int) (Math.random() * V);
+            double weight = Math.round(100 * Math.random()) / 100.0;
+            Edge e = new Edge(v, w, weight);
+            addEdge(e);
         }
-
-        // second base case
-        ArrayList<Example> example_copy = new ArrayList<Example>();
-        for(Example e: examples)
-            example_copy.add(e);
-        Collections.sort(example_copy, new ExampleComparator());
-        if(example_copy.get(0).get_label().equals(//
-                example_copy.get(example_copy.size() - 1).get_label()))
-        {
-            System.out.println("leaf 2");
-            return new Node<Condition>(examples[0].get_label(), "second leaf ");
-        }
-
-        // third base case
-        if (attributes.length == 0)
-        {
-            Condition mode = Mode(examples);
-            System.out.println("leaf 3");
-            return new Node<Condition>(mode, "third leaf ");
-        }
-
-        // recurse
-        Attribute best = ChooseBestAttribute(examples, attributes, desired_attribute);
-        System.out.println("Finding a best: " + best.name);
-        Node<Attribute> tree = new Node<Attribute>(best, "middle node ");
-        Condition label = Mode(examples);
-
-        for (Condition c : best.possible_conditions)
-        {
-            Example[] example_i = best.satisfied(examples, c);
-            Node<?> sub_tree = learnDecision(example_i, removeBest(attributes, best), label, desired_attribute);
-            sub_tree.identifier += c.toString();
-
-            tree.children.add(sub_tree);
-        }
-
-        return tree;
     }
 
     /**
-     * Takes in an array of attributes and removes one.
-     *
-     * @param attributes array of attributes
-     * @param best attribute to be removed
-     * @return an array of attributes
+     * Create a weighted graph from input stream.
      */
-    public static Attribute[] removeBest(Attribute[] attributes, Attribute best)
-    {
-        ArrayList<Attribute> modified_attributes = new ArrayList<Attribute>();
-
-        for (Attribute a : attributes)
-        {
-            if (!a.equals(best))
-                modified_attributes.add(a);
+    public Class_Uno(In in) {
+        this(in.readInt());
+        int E = in.readInt();
+        for (int i = 0; i < E; i++) {
+            int v = in.readInt();
+            int w = in.readInt();
+            double weight = in.readDouble();
+            Edge e = new Edge(v, w, weight);
+            addEdge(e);
         }
-
-        return modified_attributes.toArray(new Attribute[0]);
     }
 
     /**
-     * Calculates the mathematical mode condition (based on desired attribute, aka, last attribute in example).
-     *
-     * @param examples
-     * @return condition that appears most often
+     * Copy constructor.
      */
-    public static Condition Mode(Example[] examples)
-    {
-        Condition max_condition = null;
-        int max_count = 0;
-
-        // not the most efficient
-        for (Example e : examples)
-        {
-            int local_count = 0;
-            for (Example inner_e : examples)
-            {
-                if (inner_e.get_label().equals(e.get_label()))
-                    local_count++;
+    public Class_Uno(Class_Uno G) {
+        this(G.V());
+        this.E = G.E();
+        for (int v = 0; v < G.V(); v++) {
+            // reverse so that adjacency list is in same order as original
+            Stack<Edge> reverse = new Stack<Edge>();
+            for (Edge e : G.adj[v]) {
+                reverse.push(e);
             }
-
-            if (local_count > max_count)
-            {
-                max_count = local_count;
-                max_condition = e.get_label();
+            for (Edge e : reverse) {
+                adj[v].add(e);
             }
         }
-
-        System.out.println("Mode value: " + max_condition);
-
-        return max_condition;
     }
 
     /**
-     * This will calculate the Gain and Remainder of attributes and picks the best to recurse over
-     *
-     * @param examples
-     * @param attributes
-     * @param desired_attribute
-     * @return
+     * Return the number of vertices in this graph.
      */
-    public static Attribute ChooseBestAttribute(Example[] examples, Attribute[] attributes, Attribute desired_attribute)
-    {
-
-        Attribute best = null;
-        double smallest_double = Double.MAX_VALUE;
-
-        for (Attribute a : attributes)
-        {
-            double remain = Remain(examples, a, desired_attribute);
-            if (best == null || remain < smallest_double)
-            {
-                smallest_double = remain;
-                best = a;
-            }
-        }
-
-        return best;
+    public int V() {
+        return V;
     }
 
     /**
-     * Computes the Remain,
-     * sum(p/t * I(pi/ti, ni/ti));
-     *
-     * @param examples
-     * @param attribute
-     * @param desired_attribute
-     * @return a double value for the remain
+     * Return the number of edges in this graph.
      */
-    public static double Remain(Example[] examples, Attribute attribute, Attribute desired_attribute)
-    {
-        System.out.println("\nrunning a rem for: " + attribute.name);
+    public int E() {
+        return E;
+    }
 
-        double total_examples = examples.length;
 
-        double total = 0;
+    /**
+     * Add the edge e to this graph.
+     */
+    public void addEdge(Edge e) {
+        int v = e.either();
+        int w = e.other(v);
+        adj[v].add(e);
+        adj[w].add(e);
+        E++;
+    }
 
-        // figure out each attribute
-        for (Condition major_condition : attribute.possible_conditions)
-        {
-            System.out.println("possible condition: " + major_condition.name);
 
-            Example[] sub_examples = attribute.satisfied(examples, major_condition);
-            Double total_sub_examples = (double) sub_examples.length;
-            double precident = total_sub_examples / total_examples;
-
-            System.out.println("Number satisfied: " + total_sub_examples);
-
-            // figure out the igain
-            ArrayList<Double> sub_example_count = new ArrayList<Double>();
-            for (Condition c : desired_attribute.possible_conditions)
-            {
-                Example[] examples_c = desired_attribute.satisfied(sub_examples, c);
-                System.out.println("number of passing sub examples: " + examples_c.length);
-                sub_example_count.add(examples_c.length / total_sub_examples);
-            }
-            double i_gain = IGain(sub_example_count.toArray(new Double[0]));
-            System.out.println("iGain: " + i_gain);
-
-            double total_local_value = precident * i_gain;
-
-            total += total_local_value;
-        }
-
-        System.out.println("got a result of: " + total);
-
-        return total;
+    /**
+     * Return the edges incident to vertex v as an Iterable.
+     * To iterate over the edges incident to vertex v, use foreach notation:
+     * <tt>for (Edge e : graph.adj(v))</tt>.
+     */
+    public Iterable<Edge> adj(int v) {
+        return adj[v];
     }
 
     /**
-     * computers the I value of Remain
-     * sum(-p(vi)logbase2ofp(vi))
-     *
-     * @param ds which comes from remain
-     * @return double value of I
+     * Return all edges in this graph as an Iterable.
+     * To iterate over the edges, use foreach notation:
+     * <tt>for (Edge e : graph.edges())</tt>.
      */
-    public static double IGain(Double... ds)
-    {
-        double final_value = 0;
-        for (double d : ds)
-        {
-            if (d != 0.0)
-                final_value += -d * Math.log(d) / Math.log(2.0);
-        }
-
-        if (Double.isNaN(final_value))
-            final_value = 0;
-
-        return final_value;
-    }
-
-}
-
-class ExampleComparator implements Comparator<Example>
-{
-    @Override
-    public int compare(Example o1, Example o2)
-    {
-        return (o1.get_label()).compareTo(o2.get_label());
-    }
-}
-
-class Example
-{
-    public Attribute[] my_attributes;
-    public Condition[] my_conditions;
-
-    public Condition get_label()
-    {
-        return my_conditions[my_conditions.length - 1];
-    }
-
-    public Example(Attribute[] const_attributes, Condition... conditions)
-    {
-        my_attributes = const_attributes;
-        my_conditions = conditions;
-    }
-
-    public boolean check_condition(Attribute attribute, Condition c)
-    {
-        for (int i = 0; i < my_attributes.length; i++)
-        {
-            if (my_attributes[i].equals(attribute))
-                if (my_conditions[i].equals(c))
-                {
-                    return true;
+    public Iterable<Edge> edges() {
+        Bag<Edge> list = new Bag<Edge>();
+        for (int v = 0; v < V; v++) {
+            int selfLoops = 0;
+            for (Edge e : adj(v)) {
+                if (e.other(v) > v) {
+                    list.add(e);
                 }
+                // only add one copy of each self loop
+                else if (e.other(v) == v) {
+                    if (selfLoops % 2 == 0) list.add(e);
+                    selfLoops++;
+                }
+            }
         }
-
-        return false;
+        return list;
     }
-}
 
-class Attribute
-{
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Attribute other = (Attribute) obj;
-        if (name == null)
-        {
-            if (other.name != null)
-                return false;
+
+    /**
+     * Return a string representation of this graph.
+     */
+    public String toString() {
+        String NEWLINE = System.getProperty("line.separator");
+        StringBuilder s = new StringBuilder();
+        s.append(V + " " + E + NEWLINE);
+        for (int v = 0; v < V; v++) {
+            s.append(v + ": ");
+            for (Edge e : adj[v]) {
+                s.append(e + "  ");
+            }
+            s.append(NEWLINE);
         }
-        else if (!name.equals(other.name))
-            return false;
-        return true;
+        return s.toString();
     }
 
-    public String name;
-
-    public Condition[] possible_conditions;
-
-    public Attribute(String name, Condition... possible_conditions)
-    {
-        this.name = name;
-        this.possible_conditions = possible_conditions;
-    }
-
-    public Example[] satisfied(Example[] examples, Condition c)
-    {
-        ArrayList<Example> satisfied_examples = new ArrayList<Example>();
-
-        for (Example e : examples)
-        {
-            if (e.check_condition(this, c))
-                satisfied_examples.add(e);
-        }
-
-        return satisfied_examples.toArray(new Example[0]);
-    }
-
-    @Override
-    public String toString()
-    {
-        return name;
-    }
-}
-
-class Condition
-{
-    public String name;
-
-    @Override
-    public int hashCode()
-    {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
-    }
-
-    public int compareTo(Condition get_label)
-    {
-        return (get_label.name.compareTo(name));
-    }
-
-    @Override
-    public boolean equals(Object obj)
-    {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Condition other = (Condition) obj;
-        if (name == null)
-        {
-            if (other.name != null)
-                return false;
-        }
-        else if (!name.equals(other.name))
-            return false;
-        return true;
-    }
-
-    public Condition(String name)
-    {
-        this.name = name;
-    }
-
-    @Override
-    public String toString()
-    {
-        return name;
-    }
-}
-
-class Node<T>
-{
-    public String identifier;
-
-    public T data;
-    public Node<?> parent = null;
-    public List<Node<?>> children;
-
-    public Node(T data, String ident)
-    {
-        this.identifier = ident;
-        this.data = data;
-        children = new ArrayList<Node<?>>();
-    }
-
-    public Node(T data)
-    {
-        this(data, "unset");
-    }
-
-    public String toString(String tabs)
-    {
-        String childs = "";
-        for (Node<?> n : children)
-            childs += n.toString(tabs + "-");
-
-        if (childs.equals(""))
-            childs = "no children.";
-
-        return "\n" + tabs + "Node: " + identifier + " value: " + data.toString() + " children: " + childs;
-    }
-
-    @Override
-    public String toString()
-    {
-        return toString("");
+    /**
+     * Test client.
+     */
+    public static void main(String[] args) {
+        In in = new In(args[0]);
+        Class_Uno G = new Class_Uno(in);
+        StdOut.println(G);
     }
 }
