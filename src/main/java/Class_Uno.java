@@ -6,5 +6,11 @@ public class Class_Uno {
         for (int i = 0; i < 10; i++) {
             System.out.println("do smth");
         }
+
+        int n = 7;
+        while (n < 5) {
+            System.out.println(n);
+            n--;
+        }
     }
 }
