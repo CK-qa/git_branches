@@ -3,4 +3,10 @@ public class AnotherClass {
 
     ///change2
     //olololo
+
+    //making changes in file
+
+    public static void main(String[] args) {
+        System.out.println("pewpew");
+    }
 }
