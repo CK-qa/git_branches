@@ -7,4 +7,10 @@ public class AnotherClass {
     //11
     //12
     //olololo
+
+    //making changes in file
+
+    public static void main(String[] args) {
+        System.out.println("pewpew");
+    }
 }
